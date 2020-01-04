@@ -8,7 +8,7 @@
 		"parameters": {
 			"FileName": {
 				"type": "string",
-				"defaultValue": "@{item().Query}.csv"
+				"defaultValue": "@{item().TableName}.csv"
 			}
 		},
 		"annotations": [],

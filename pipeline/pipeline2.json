@@ -64,7 +64,7 @@
 										"Query": {
 											"type": "String",
 											"value": {
-												"value": "@{item().Query}",
+												"value": "@{item().TableName}",
 												"type": "Expression"
 											}
 										}
@@ -94,7 +94,13 @@
 							"outputs": [
 								{
 									"referenceName": "BSCSVFile",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"FileName": {
+											"value": "@{item().TableName}.csv",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
