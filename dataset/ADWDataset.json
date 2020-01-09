@@ -1,0 +1,12 @@
+{
+	"name": "ADWDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ADWConnection",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlDWTable",
+		"schema": []
+	}
+}
