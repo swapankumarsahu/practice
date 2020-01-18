@@ -1,0 +1,50 @@
+{
+	"name": "DelimitedText3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"SourceContainerName": {
+				"type": "string",
+				"defaultValue": "@{item().SourceContainerName}"
+			},
+			"SourceFolderName": {
+				"type": "string",
+				"defaultValue": "@{item().SourceFolderName}"
+			},
+			"SourceFileLoacation": {
+				"type": "string",
+				"defaultValue": "@{item().SourceFileLoacation}"
+			},
+			"FileName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().FileName",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "@concat(dataset().SourceFolderName,'/', dataset().SourceFileLoacation)",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().SourceContainerName",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
