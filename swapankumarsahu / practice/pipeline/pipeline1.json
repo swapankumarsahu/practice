@@ -55,7 +55,7 @@
 					},
 					"activities": [
 						{
-							"name": "Get Metadata1",
+							"name": "Get_Folder_Metadata",
 							"type": "GetMetadata",
 							"dependsOn": [],
 							"policy": {
@@ -69,10 +69,19 @@
 							"typeProperties": {
 								"dataset": {
 									"referenceName": "DelimitedText1",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"SourceContainerName": "@{item().SourceContainerName}",
+										"SourceFolderName": "@{item().SourceFolderName}",
+										"SourceFileLoacation": "@{item().SourceFileLoacation}"
+									}
 								},
 								"fieldList": [
-									"childItems"
+									"childItems",
+									"exists",
+									"itemName",
+									"itemType",
+									"lastModified"
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
@@ -81,6 +90,37 @@
 								"formatSettings": {
 									"type": "DelimitedTextReadSettings"
 								}
+							}
+						},
+						{
+							"name": "If Condition1",
+							"description": "",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Get_Folder_Metadata",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@activity('Get_Folder_Metadata').output.exists",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Wait1",
+										"type": "Wait",
+										"dependsOn": [],
+										"userProperties": [],
+										"typeProperties": {
+											"waitTimeInSeconds": 100
+										}
+									}
+								]
 							}
 						}
 					]
