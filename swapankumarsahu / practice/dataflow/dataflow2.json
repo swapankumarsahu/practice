@@ -1,0 +1,28 @@
+{
+	"name": "dataflow2",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "FileReadtoBlob",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "LoadDataToTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"script": "\n\nsource(output(\n\t\tColumn_1 as string,\n\t\tColumn_2 as string,\n\t\tColumn_3 as string,\n\t\tColumn_4 as string,\n\t\tColumn_5 as string,\n\t\tColumn_6 as string,\n\t\tColumn_7 as string,\n\t\tColumn_8 as string,\n\t\tColumn_9 as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false) ~> source1\nsource1 sink(input(\n\t\tDateKey as integer,\n\t\tFullDateAlternateKey as date,\n\t\tDayNumberOfWeek as integer,\n\t\tEnglishDayNameOfWeek as string,\n\t\tSpanishDayNameOfWeek as string,\n\t\tFrenchDayNameOfWeek as string,\n\t\tDayNumberOfMonth as integer,\n\t\tDayNumberOfYear as integer,\n\t\tWeekNumberOfYear as integer,\n\t\tEnglishMonthName as string,\n\t\tSpanishMonthName as string,\n\t\tFrenchMonthName as string,\n\t\tMonthNumberOfYear as integer,\n\t\tCalendarQuarter as integer,\n\t\tCalendarYear as integer,\n\t\tCalendarSemester as integer,\n\t\tFiscalQuarter as integer,\n\t\tFiscalYear as integer,\n\t\tFiscalSemester as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tstaged: true,\n\tmapColumn(\n\t\tDateKey = Column_1,\n\t\tFullDateAlternateKey = Column_2,\n\t\tDayNumberOfWeek = Column_3,\n\t\tEnglishDayNameOfWeek = Column_4\n\t),\n\tdateFormat:'dd-MM-yyyy',\n\ttimestampFormat:'dd-MM-yyyy',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> sink1"
+		}
+	}
+}
