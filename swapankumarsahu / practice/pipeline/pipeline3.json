@@ -1,0 +1,174 @@
+{
+	"name": "pipeline3",
+	"properties": {
+		"activities": [
+			{
+				"name": "Get-Tables",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlDWSource",
+						"sqlReaderStoredProcedureName": "[dbo].[uspTest]",
+						"storedProcedureParameters": {
+							"JobID": {
+								"type": "Int32",
+								"value": {
+									"value": "@pipeline().parameters.JobID",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00"
+					},
+					"dataset": {
+						"referenceName": "AzureSynapseAnalyticsTable1",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get-Tables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get-Tables').output.value",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Get_Folder_Metadata",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "DelimitedText1",
+									"type": "DatasetReference",
+									"parameters": {
+										"SourceContainerName": "@{item().SourceContainerName}",
+										"SourceFolderName": "@{item().SourceFolderName}",
+										"SourceFileLoacation": "@{item().SourceFileLoacation}"
+									}
+								},
+								"fieldList": [
+									"childItems",
+									"exists",
+									"itemName",
+									"itemType",
+									"lastModified"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "Copy data1",
+							"type": "Copy",
+							"dependsOn": [
+								{
+									"activity": "Get_Folder_Metadata",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "7.00:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"wildcardFileName": "*"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "SqlDWSink",
+									"allowPolyBase": true,
+									"polyBaseSettings": {
+										"rejectValue": 0,
+										"rejectType": "value",
+										"useTypeDefault": false
+									},
+									"tableOption": "autoCreate",
+									"disableMetricsCollection": false
+								},
+								"enableStaging": false,
+								"enableSkipIncompatibleRow": true
+							},
+							"inputs": [
+								{
+									"referenceName": "DelimitedText3",
+									"type": "DatasetReference",
+									"parameters": {
+										"SourceContainerName": "@{item().SourceContainerName}",
+										"SourceFolderName": "@{item().SourceFolderName}",
+										"SourceFileLoacation": "@{item().SourceFileLoacation}",
+										"FileName": {
+											"value": "@activity('Get_Folder_Metadata').output.itemName ",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "AzureSynapseAnalyticsTable1",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"JobID": {
+				"type": "int",
+				"defaultValue": 5
+			}
+		},
+		"annotations": []
+	}
+}
